@@ -12,6 +12,7 @@ public record OrderResponse(
         String trackingCode,
         String reason,
         OffsetDateTime createdAt,
+        String shippingAddress,
         List<OrderLineResponse> lines
 ) {
 }

@@ -16,20 +16,20 @@ public class InventorySeedConfig {
                 return;
             }
 
-            repository.save(buildItem("SKU-1001", "Teclado Mecanico RGB", "WH-SCL-01", 120, 20));
-            repository.save(buildItem("SKU-2001", "Mouse Inalambrico", "WH-SCL-01", 200, 30));
-            repository.save(buildItem("SKU-3001", "Monitor 24 Pulgadas", "WH-VAP-02", 45, 10));
+            repository.save(buildItem("SKU-1001", "Teclado Mecanico RGB", "WH-SCL-01", 120, 20, 35000));
+            repository.save(buildItem("SKU-2001", "Mouse Inalambrico", "WH-SCL-01", 200, 30, 20000));
+            repository.save(buildItem("SKU-3001", "Monitor 24 Pulgadas", "WH-VAP-02", 45, 10, 115000));
 
-            repository.save(buildItem("SKU-4001", "Gabinete Gamer RGB", "WH-SCL-01", 30, 5));
-            repository.save(buildItem("SKU-5001", "Pasta Termica 3g", "WH-VAP-02", 150, 20));
-            repository.save(buildItem("SKU-6001", "Disco Duro SSD 1TB", "WH-SCL-01", 80, 15));
-            repository.save(buildItem("SKU-7001", "Memoria RAM 16G DDR4", "WH-VAP-02", 100, 20));
-            repository.save(buildItem("SKU-8001", "Fuente de Poder 650W 80+ Bronze", "WH-SCL-01", 40, 10));
-            repository.save(buildItem("SKU-9001", "Disco Duro SSD 1TB", "WH-VAP-02", 65, 12));
+            repository.save(buildItem("SKU-4001", "Gabinete Gamer RGB", "WH-SCL-01", 30, 5, 46000));
+            repository.save(buildItem("SKU-5001", "Pasta Termica 3g", "WH-VAP-02", 150, 20, 6000));
+            repository.save(buildItem("SKU-6001", "Disco Duro SSD 1TB", "WH-SCL-01", 80, 15, 63000));
+            repository.save(buildItem("SKU-7001", "Memoria RAM 16G DDR4", "WH-VAP-02", 100, 20, 39000));
+            repository.save(buildItem("SKU-8001", "Fuente de Poder 650W 80+ Bronze", "WH-SCL-01", 40, 10, 50000));
+            repository.save(buildItem("SKU-9001", "Disco Duro SSD 1TB", "WH-VAP-02", 65, 12, 36000));
         };
     }
 
-    private InventoryItem buildItem(String sku, String name, String warehouse, int available, int reorderLevel) {
+    private InventoryItem buildItem(String sku, String name, String warehouse, int available, int reorderLevel, int price) {
         InventoryItem item = new InventoryItem();
         item.setSku(sku);
         item.setProductName(name);
@@ -37,6 +37,7 @@ public class InventorySeedConfig {
         item.setAvailableQuantity(available);
         item.setReservedQuantity(0);
         item.setReorderLevel(reorderLevel);
+        item.setPrice(price);
         return item;
     }
 }

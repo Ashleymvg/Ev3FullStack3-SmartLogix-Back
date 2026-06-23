@@ -121,6 +121,7 @@ public class InventoryService {
                 item.getAvailableQuantity(),
                 item.getReservedQuantity(),
                 item.getReorderLevel(),
+                item.getPrice(),
                 item.getUpdatedAt()
         );
     }

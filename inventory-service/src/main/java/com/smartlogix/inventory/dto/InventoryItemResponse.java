@@ -9,6 +9,7 @@ public record InventoryItemResponse(
         int availableQuantity,
         int reservedQuantity,
         int reorderLevel,
+        int price,
         OffsetDateTime updatedAt
 ) {
 }

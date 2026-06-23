@@ -157,6 +157,7 @@ public class OrderService {
                 order.getTrackingCode(),
                 order.getRejectionReason(),
                 order.getCreatedAt(),
+                order.getShippingAddress(),
                 lines
         );
     }

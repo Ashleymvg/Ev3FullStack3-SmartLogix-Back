@@ -36,6 +36,10 @@ public class InventoryItem {
     @Column(nullable = false)
     private int reorderLevel;
 
+    // * 
+    @Column(nullable = false)
+    private int price;
+
     @Column(nullable = false)
     private OffsetDateTime updatedAt;
 
@@ -99,5 +103,13 @@ public class InventoryItem {
 
     public OffsetDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    // * 
+    public int getPrice() { 
+        return price; 
+    }
+    public void setPrice(int price) { 
+        this.price = price; 
     }
 }
