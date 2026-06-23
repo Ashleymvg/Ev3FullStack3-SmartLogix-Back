@@ -104,7 +104,19 @@ public class OrderService {
             order.setStatus(OrderStatus.FAILED);
             order.setRejectionReason("Servicio de envios no disponible. Asignacion manual requerida.");
             repository.save(order);
-            return toResponse(order, pointsRedeemed, 0);
+
+            // ── LogixPoints: sumar puntos igual — inventario ya fue reservado ──
+            int pointsEarnedOnFail = 0;
+            try {
+                String bearerToken = extractBearerToken();
+                pointsEarnedOnFail = pointsClient.earnPoints(
+                        request.customerEmail(),
+                        order.getTotalAmount().doubleValue(),
+                        bearerToken
+                );
+            } catch (Exception ignored) {}
+
+            return toResponse(order, pointsRedeemed, pointsEarnedOnFail);
         }
 
         order.setStatus(OrderStatus.SHIPMENT_REQUESTED);
