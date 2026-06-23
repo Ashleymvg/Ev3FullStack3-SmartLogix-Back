@@ -13,6 +13,10 @@ public record OrderResponse(
         String reason,
         OffsetDateTime createdAt,
         String shippingAddress,
-        List<OrderLineResponse> lines
+        List<OrderLineResponse> lines,
+
+        // ── LogixPoints: campos añadidos ──
+        int pointsRedeemed,   // puntos que se descontaron en esta orden
+        int pointsEarned      // puntos que ganó el cliente con esta compra
 ) {
 }

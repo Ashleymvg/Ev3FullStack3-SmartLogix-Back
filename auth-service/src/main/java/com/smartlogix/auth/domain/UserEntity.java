@@ -36,15 +36,21 @@ public class UserEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    // ─── LogixPoints: puntos de fidelización acumulados ───────────
+    @Column(name = "logix_points", nullable = false)
+    private int logixPoints = 0;
+
     @PrePersist
     void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = this.createdAt;
+        if (this.logixPoints < 0) this.logixPoints = 0;
     }
 
     @PreUpdate
     void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+        if (this.logixPoints < 0) this.logixPoints = 0;
     }
 
     // ─── Getters & Setters ───────────────────────────────────────
@@ -69,4 +75,7 @@ public class UserEntity {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+
+    public int getLogixPoints() { return logixPoints; }
+    public void setLogixPoints(int logixPoints) { this.logixPoints = Math.max(0, logixPoints); }
 }

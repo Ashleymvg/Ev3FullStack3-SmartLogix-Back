@@ -41,3 +41,8 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
+# ── LogixPoints: URL del auth-service para gestión de puntos ──────────────
+smartlogix:
+  auth-service:
+    url: ${AUTH_SERVICE_URL:http://auth-service}

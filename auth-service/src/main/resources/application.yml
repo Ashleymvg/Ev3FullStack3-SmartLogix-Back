@@ -15,7 +15,7 @@ spring:
       path: /h2-console
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop   # recrear tabla al arrancar — seguro en H2 en memoria
     show-sql: false
 
 # Configuración JWT
