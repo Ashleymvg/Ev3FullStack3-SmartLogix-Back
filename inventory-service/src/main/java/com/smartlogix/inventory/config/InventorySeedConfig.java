@@ -25,7 +25,6 @@ public class InventorySeedConfig {
             repository.save(buildItem("SKU-6001", "Disco Duro SSD 1TB", "WH-SCL-01", 80, 15, 63000));
             repository.save(buildItem("SKU-7001", "Memoria RAM 16G DDR4", "WH-VAP-02", 100, 20, 39000));
             repository.save(buildItem("SKU-8001", "Fuente de Poder 650W 80+ Bronze", "WH-SCL-01", 40, 10, 50000));
-            repository.save(buildItem("SKU-9001", "Disco Duro SSD 1TB", "WH-VAP-02", 65, 12, 36000));
         };
     }
 
