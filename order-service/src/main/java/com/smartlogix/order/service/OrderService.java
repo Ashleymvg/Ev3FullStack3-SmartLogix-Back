@@ -203,6 +203,11 @@ public class OrderService {
                 ))
                 .toList();
 
+                // Calculamos el subtotal original antes de cualquier descuento 
+        BigDecimal subtotal = order.getLines().stream()
+                .map(line -> line.getUnitPrice().multiply(BigDecimal.valueOf(line.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         return new OrderResponse(
                 order.getOrderNumber(),
                 order.getStatus(),
@@ -212,6 +217,11 @@ public class OrderService {
                 order.getCreatedAt(),
                 order.getShippingAddress(),
                 lines,
+                //Pasamos los datos faltantes para la Boleta PDF 
+                order.getCustomerName(),
+                order.getCustomerEmail(),
+                subtotal,
+                
                 pointsRedeemed,
                 pointsEarned
         );
