@@ -160,6 +160,24 @@ public class OrderService {
         return toResponse(order, order.getPointsRedeemed(), order.getPointsEarned());
     }
 
+    /**
+     * Sincroniza el pedido con el shipment-service cuando se asigna un envío
+     * de forma manual (fuera del flujo automático de creación). Sin esto, el
+     * pedido se queda para siempre en FAILED/sin tracking aunque el envío ya
+     * exista y avance en shipment-service, y el cliente nunca lo ve reflejado.
+     */
+    public OrderResponse syncTracking(String orderNumber, String trackingCode) {
+        PurchaseOrder order = repository.findByOrderNumber(orderNumber)
+                .orElseThrow(() -> new OrderNotFoundException("No existe la orden " + orderNumber));
+
+        order.setTrackingCode(trackingCode);
+        order.setStatus(OrderStatus.SHIPMENT_REQUESTED);
+        order.setRejectionReason(null);
+        repository.save(order);
+
+        return toResponse(order, order.getPointsRedeemed(), order.getPointsEarned());
+    }
+
     // ── helpers ─────────────────────────────────────────────────────────────
 
     private PurchaseOrder buildOrder(CreateOrderRequest request) {
