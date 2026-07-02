@@ -54,6 +54,15 @@ public class PurchaseOrder {
     @Column(nullable = false)
     private OffsetDateTime createdAt;
 
+    // ── LogixPoints: se persisten para que boletas/consultas futuras
+    // (listado, detalle, boleta desde Envíos) muestren el valor real
+    // en vez de siempre 0 ──
+    @Column(nullable = false)
+    private int pointsRedeemed = 0;
+
+    @Column(nullable = false)
+    private int pointsEarned = 0;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<OrderLine> lines = new ArrayList<>();
 
@@ -131,6 +140,22 @@ public class PurchaseOrder {
 
     public OffsetDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public int getPointsRedeemed() {
+        return pointsRedeemed;
+    }
+
+    public void setPointsRedeemed(int pointsRedeemed) {
+        this.pointsRedeemed = pointsRedeemed;
+    }
+
+    public int getPointsEarned() {
+        return pointsEarned;
+    }
+
+    public void setPointsEarned(int pointsEarned) {
+        this.pointsEarned = pointsEarned;
     }
 
     public List<OrderLine> getLines() {

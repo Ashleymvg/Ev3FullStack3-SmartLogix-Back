@@ -46,3 +46,7 @@ eureka:
 smartlogix:
   auth-service:
     url: ${AUTH_SERVICE_URL:http://auth-service}
+  # Secreto compartido entre order-service y auth-service para que los
+  # endpoints internos de puntos (/earn, /redeem) solo puedan ser llamados
+  # por el propio backend y nunca directamente por un cliente (Postman, etc.)
+  internal-secret: ${SMARTLOGIX_INTERNAL_SECRET:smartlogix-internal-secret-2024}

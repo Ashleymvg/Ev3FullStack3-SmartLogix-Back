@@ -29,6 +29,10 @@ smartlogix:
     admin-password: ${SMARTLOGIX_SEED_ADMIN_PASSWORD:admin123}
     user-password: ${SMARTLOGIX_SEED_USER_PASSWORD:user123}
     warehouse-password: ${SMARTLOGIX_SEED_WAREHOUSE_PASSWORD:bodega123}
+  # Debe coincidir con el mismo valor configurado en order-service.
+  # Protege /api/auth/points/earn y /api/auth/points/redeem para que
+  # solo el order-service pueda invocarlos (nunca un cliente directo).
+  internal-secret: ${SMARTLOGIX_INTERNAL_SECRET:smartlogix-internal-secret-2024}
 
 management:
   endpoints:

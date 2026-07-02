@@ -6,6 +6,7 @@ import com.smartlogix.shipment.dto.ShipmentResponse;
 import com.smartlogix.shipment.service.ShipmentService;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +26,9 @@ public class ShipmentController {
         this.shipmentService = shipmentService;
     }
 
+    // Nota: este endpoint lo usa tanto la asignación automática (order-service,
+    // en nombre de cualquier cliente que compra) como la asignación manual de
+    // bodega, por lo que se deja abierto a cualquier usuario autenticado.
     @PostMapping
     public ShipmentResponse createShipment(@Valid @RequestBody CreateShipmentRequest request) {
         return shipmentService.createShipment(request);
@@ -40,6 +44,8 @@ public class ShipmentController {
         return shipmentService.getByTrackingCode(trackingCode);
     }
 
+    // Cambiar el estado de un envío es una operación operativa de bodega/administración.
+    @PreAuthorize("hasAnyRole('ADMIN','WAREHOUSE_MANAGER')")
     @PatchMapping("/{trackingCode}/status")
     public ShipmentResponse updateStatus(
             @PathVariable String trackingCode,

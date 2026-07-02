@@ -15,6 +15,11 @@ public record OrderResponse(
         String shippingAddress,
         List<OrderLineResponse> lines,
 
+        // ── Boleta: datos del cliente y subtotal antes de descuentos ──
+        String customerName,
+        String customerEmail,
+        BigDecimal subtotal,
+
         // ── LogixPoints: campos añadidos ──
         int pointsRedeemed,   // puntos que se descontaron en esta orden
         int pointsEarned      // puntos que ganó el cliente con esta compra

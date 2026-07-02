@@ -22,6 +22,23 @@ public class InventoryClient {
         );
     }
 
+    /**
+     * Obtiene los datos autoritativos del producto (incluyendo el precio real)
+     * directamente desde el inventory-service. Nunca se debe confiar en el
+     * unitPrice que envía el cliente en el cuerpo de la solicitud del pedido.
+     */
+    public InventoryItemResponse findBySku(String sku) {
+        try {
+            return restTemplate.getForObject(
+                    "http://inventory-service/api/inventory/items/{sku}",
+                    InventoryItemResponse.class,
+                    sku
+            );
+        } catch (RestClientException ex) {
+            throw new InventoryClientException("No existe el producto con SKU " + sku, ex);
+        }
+    }
+
     public void reserve(String sku, int quantity) {
         try {
             restTemplate.postForObject(

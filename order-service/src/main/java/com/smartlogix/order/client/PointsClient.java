@@ -19,15 +19,19 @@ import java.util.Map;
 public class PointsClient {
 
     private static final Logger log = LoggerFactory.getLogger(PointsClient.class);
+    private static final String INTERNAL_TOKEN_HEADER = "X-Internal-Token";
 
     private final RestTemplate restTemplate;
     private final String authServiceUrl;
+    private final String internalSecret;
 
     public PointsClient(
             RestTemplate restTemplate,
-            @Value("${smartlogix.auth-service.url:http://auth-service}") String authServiceUrl) {
+            @Value("${smartlogix.auth-service.url:http://auth-service}") String authServiceUrl,
+            @Value("${smartlogix.internal-secret}") String internalSecret) {
         this.restTemplate = restTemplate;
         this.authServiceUrl = authServiceUrl;
+        this.internalSecret = internalSecret;
     }
 
     public int redeemPoints(String username, int points, String bearerToken) {
@@ -83,6 +87,9 @@ public class PointsClient {
         if (bearerToken != null && !bearerToken.isBlank()) {
             headers.set(HttpHeaders.AUTHORIZATION, bearerToken);
         }
+        // Prueba de que la llamada viene del propio backend (order-service),
+        // y no de un cliente externo golpeando /earn o /redeem directamente.
+        headers.set(INTERNAL_TOKEN_HEADER, internalSecret);
         return headers;
     }
 }

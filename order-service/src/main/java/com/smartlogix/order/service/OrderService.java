@@ -3,6 +3,7 @@ package com.smartlogix.order.service;
 import com.smartlogix.order.client.InventoryAvailabilityResponse;
 import com.smartlogix.order.client.InventoryClient;
 import com.smartlogix.order.client.InventoryClientException;
+import com.smartlogix.order.client.InventoryItemResponse;
 import com.smartlogix.order.client.PointsClient;
 import com.smartlogix.order.client.ShipmentClient;
 import com.smartlogix.order.client.ShipmentRequest;
@@ -15,6 +16,7 @@ import com.smartlogix.order.dto.OrderLineRequest;
 import com.smartlogix.order.dto.OrderLineResponse;
 import com.smartlogix.order.dto.OrderResponse;
 import com.smartlogix.order.exception.OrderNotFoundException;
+import com.smartlogix.order.exception.OrderProcessingException;
 import com.smartlogix.order.repository.PurchaseOrderRepository;
 
 import java.math.BigDecimal;
@@ -81,8 +83,8 @@ public class OrderService {
         int pointsRedeemed = 0;
         if (request.usePoints() && request.pointsToUse() > 0) {
             String bearerToken = extractBearerToken();
-            String customerEmail = request.customerEmail();
-            pointsRedeemed = pointsClient.redeemPoints(customerEmail, request.pointsToUse(), bearerToken);
+            String pointsAccount = extractAuthenticatedUsername();
+            pointsRedeemed = pointsClient.redeemPoints(pointsAccount, request.pointsToUse(), bearerToken);
 
             if (pointsRedeemed > 0) {
                 // 1 punto = $1 de descuento
@@ -90,8 +92,9 @@ public class OrderService {
                 BigDecimal newTotal = order.getTotalAmount().subtract(discount);
                 if (newTotal.compareTo(BigDecimal.ZERO) < 0) newTotal = BigDecimal.ZERO;
                 order.setTotalAmount(newTotal);
-                repository.save(order);
             }
+            order.setPointsRedeemed(pointsRedeemed);
+            repository.save(order);
         }
 
         order.setStatus(OrderStatus.APPROVED);
@@ -110,11 +113,13 @@ public class OrderService {
             try {
                 String bearerToken = extractBearerToken();
                 pointsEarnedOnFail = pointsClient.earnPoints(
-                        request.customerEmail(),
+                        extractAuthenticatedUsername(),
                         order.getTotalAmount().doubleValue(),
                         bearerToken
                 );
             } catch (Exception ignored) {}
+            order.setPointsEarned(pointsEarnedOnFail);
+            repository.save(order);
 
             return toResponse(order, pointsRedeemed, pointsEarnedOnFail);
         }
@@ -128,13 +133,15 @@ public class OrderService {
         try {
             String bearerToken = extractBearerToken();
             pointsEarned = pointsClient.earnPoints(
-                    request.customerEmail(),
+                    extractAuthenticatedUsername(),
                     order.getTotalAmount().doubleValue(),
                     bearerToken
             );
         } catch (Exception ignored) {
             // La acumulación de puntos es un proceso no crítico; la orden ya se completó
         }
+        order.setPointsEarned(pointsEarned);
+        repository.save(order);
 
         return toResponse(order, pointsRedeemed, pointsEarned);
     }
@@ -142,7 +149,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public List<OrderResponse> getOrders() {
         return repository.findAll().stream()
-                .map(o -> toResponse(o, 0, 0))
+                .map(o -> toResponse(o, o.getPointsRedeemed(), o.getPointsEarned()))
                 .toList();
     }
 
@@ -150,7 +157,7 @@ public class OrderService {
     public OrderResponse getOrderByNumber(String orderNumber) {
         PurchaseOrder order = repository.findByOrderNumber(orderNumber)
                 .orElseThrow(() -> new OrderNotFoundException("No existe la orden " + orderNumber));
-        return toResponse(order, 0, 0);
+        return toResponse(order, order.getPointsRedeemed(), order.getPointsEarned());
     }
 
     // ── helpers ─────────────────────────────────────────────────────────────
@@ -161,22 +168,33 @@ public class OrderService {
         order.setCustomerEmail(request.customerEmail().trim().toLowerCase());
         order.setShippingAddress(request.shippingAddress().trim());
         order.setStatus(OrderStatus.PENDING);
-        order.setTotalAmount(calculateTotal(request.lines()));
 
         for (OrderLineRequest lineRequest : request.lines()) {
+            String sku = lineRequest.sku().trim().toUpperCase();
+
+            // ── Seguridad: el precio SIEMPRE se obtiene del inventory-service,
+            // nunca se confía en el unitPrice que envía el cliente (evita que
+            // alguien manipule el precio del pedido mediante Postman o similar).
+            InventoryItemResponse item = inventoryClient.findBySku(sku);
+            if (item == null) {
+                throw new OrderProcessingException("El producto con SKU " + sku + " no existe en el inventario.");
+            }
+
             OrderLine line = new OrderLine();
-            line.setSku(lineRequest.sku().trim().toUpperCase());
+            line.setSku(sku);
             line.setQuantity(lineRequest.quantity());
-            line.setUnitPrice(lineRequest.unitPrice());
+            line.setUnitPrice(BigDecimal.valueOf(item.price()));
             order.addLine(line);
         }
+
+        order.setTotalAmount(calculateTotal(order.getLines()));
 
         return order;
     }
 
-    private BigDecimal calculateTotal(List<OrderLineRequest> lines) {
+    private BigDecimal calculateTotal(List<OrderLine> lines) {
         return lines.stream()
-                .map(line -> line.unitPrice().multiply(BigDecimal.valueOf(line.quantity())))
+                .map(line -> line.getUnitPrice().multiply(BigDecimal.valueOf(line.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
@@ -241,6 +259,22 @@ public class OrderService {
                 }
             }
         } catch (Exception ignored) {}
+        return "";
+    }
+
+    /**
+     * Extrae el username del usuario autenticado (dueño de la sesión/JWT)
+     * para asociar correctamente la acumulación y el canje de LogixPoints.
+     * Antes se usaba erróneamente el "Email del Cliente" del formulario,
+     * lo que hacía que los puntos se sumaran/descontaran a una cuenta
+     * distinta a la del usuario logueado (o a ninguna).
+     */
+    private String extractAuthenticatedUsername() {
+        var authentication = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication();
+        if (authentication != null && authentication.getName() != null) {
+            return authentication.getName();
+        }
         return "";
     }
 }
