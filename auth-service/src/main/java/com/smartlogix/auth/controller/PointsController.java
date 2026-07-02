@@ -1,18 +1,25 @@
 package com.smartlogix.auth.controller;
 
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.smartlogix.auth.dto.AdjustPointsRequest;
 import com.smartlogix.auth.dto.PointsResponse;
 import com.smartlogix.auth.dto.UserPointsSummary;
 import com.smartlogix.auth.exception.AuthException;
 import com.smartlogix.auth.service.PointsService;
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import jakarta.validation.Valid;
 
 /**
  * Controlador REST para el Programa de Fidelización LogixPoints.
@@ -110,7 +117,7 @@ public class PointsController {
         return ResponseEntity.ok(pointsService.adjustPoints(request));
     }
 
-    // ── helper: verifica que el usuario sea ROLE_ADMIN ───────────────────────
+    // helper: verifica que el usuario sea ROLE_ADMIN
     private void checkAdmin(Authentication auth) {
         boolean isAdmin = auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
@@ -119,7 +126,7 @@ public class PointsController {
         }
     }
 
-    // ── helper: verifica que la llamada venga del propio backend ─────────────
+    // helper: verifica que la llamada venga del propio backend 
     private void checkInternalCall(String internalToken) {
         if (internalToken == null || !internalToken.equals(internalSecret)) {
             throw new AuthException("Acceso denegado. Este endpoint es de uso interno.");

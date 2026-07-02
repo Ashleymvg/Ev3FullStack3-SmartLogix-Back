@@ -1,5 +1,15 @@
 package com.smartlogix.order.service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
 import com.smartlogix.order.client.InventoryAvailabilityResponse;
 import com.smartlogix.order.client.InventoryClient;
 import com.smartlogix.order.client.InventoryClientException;
@@ -19,16 +29,7 @@ import com.smartlogix.order.exception.OrderNotFoundException;
 import com.smartlogix.order.exception.OrderProcessingException;
 import com.smartlogix.order.repository.PurchaseOrderRepository;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Service
 @Transactional
@@ -79,7 +80,7 @@ public class OrderService {
             }
         }
 
-        // ── LogixPoints: descuento de puntos si el cliente lo solicitó ──────
+        // LogixPoints: descuento de puntos si el cliente lo solicitó 
         int pointsRedeemed = 0;
         if (request.usePoints() && request.pointsToUse() > 0) {
             String bearerToken = extractBearerToken();
@@ -108,7 +109,7 @@ public class OrderService {
             order.setRejectionReason("Servicio de envios no disponible. Asignacion manual requerida.");
             repository.save(order);
 
-            // ── LogixPoints: sumar puntos igual — inventario ya fue reservado ──
+            // LogixPoints: sumar puntos igual — inventario ya fue reservado 
             int pointsEarnedOnFail = 0;
             try {
                 String bearerToken = extractBearerToken();
@@ -128,7 +129,7 @@ public class OrderService {
         order.setTrackingCode(shipmentResponse.trackingCode());
         repository.save(order);
 
-        // ── LogixPoints: acumular puntos tras compra exitosa ─────────────────
+        // <- LogixPoints: acumular puntos tras compra exitosa ->
         int pointsEarned = 0;
         try {
             String bearerToken = extractBearerToken();
@@ -178,7 +179,7 @@ public class OrderService {
         return toResponse(order, order.getPointsRedeemed(), order.getPointsEarned());
     }
 
-    // ── helpers ─────────────────────────────────────────────────────────────
+    // <─ helpers ─>
 
     private PurchaseOrder buildOrder(CreateOrderRequest request) {
         PurchaseOrder order = new PurchaseOrder();
@@ -190,7 +191,7 @@ public class OrderService {
         for (OrderLineRequest lineRequest : request.lines()) {
             String sku = lineRequest.sku().trim().toUpperCase();
 
-            // ── Seguridad: el precio SIEMPRE se obtiene del inventory-service,
+            // Seguridad: el precio SIEMPRE se obtiene del inventory-service,
             // nunca se confía en el unitPrice que envía el cliente (evita que
             // alguien manipule el precio del pedido mediante Postman o similar).
             InventoryItemResponse item = inventoryClient.findBySku(sku);

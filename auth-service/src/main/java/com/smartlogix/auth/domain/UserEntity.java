@@ -1,7 +1,17 @@
 package com.smartlogix.auth.domain;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 
 /**
  * Entidad JPA que representa un usuario registrado en SmartLogix.
@@ -36,7 +46,7 @@ public class UserEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // ─── LogixPoints: puntos de fidelización acumulados ───────────
+    // LogixPoints: puntos de fidelización acumulados 
     @Column(name = "logix_points", nullable = false)
     private int logixPoints = 0;
 
@@ -53,7 +63,7 @@ public class UserEntity {
         if (this.logixPoints < 0) this.logixPoints = 0;
     }
 
-    // ─── Getters & Setters ───────────────────────────────────────
+    //  Getters & Setters
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

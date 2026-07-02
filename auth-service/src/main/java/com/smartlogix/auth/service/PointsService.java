@@ -1,15 +1,16 @@
 package com.smartlogix.auth.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.smartlogix.auth.domain.UserEntity;
 import com.smartlogix.auth.dto.AdjustPointsRequest;
 import com.smartlogix.auth.dto.PointsResponse;
 import com.smartlogix.auth.dto.UserPointsSummary;
 import com.smartlogix.auth.exception.AuthException;
 import com.smartlogix.auth.repository.UserRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 /**
  * Servicio de LogixPoints — gestiona la acumulación y descuento
@@ -113,7 +114,7 @@ public class PointsService {
                 .toList();
     }
 
-    // ─── helpers ─────────────────────────────────────────────────
+    // <─ helpers ─>
 
     private UserEntity findUser(String username) {
         return userRepository.findByUsername(username)

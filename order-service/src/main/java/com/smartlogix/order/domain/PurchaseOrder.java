@@ -1,5 +1,11 @@
 package com.smartlogix.order.domain;
 
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,11 +18,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Table(name = "orders")
@@ -54,9 +55,9 @@ public class PurchaseOrder {
     @Column(nullable = false)
     private OffsetDateTime createdAt;
 
-    // ── LogixPoints: se persisten para que boletas/consultas futuras
+    // LogixPoints: se persisten para que boletas/consultas futuras
     // (listado, detalle, boleta desde Envíos) muestren el valor real
-    // en vez de siempre 0 ──
+    // en vez de siempre 0 
     @Column(nullable = false)
     private int pointsRedeemed = 0;
 
